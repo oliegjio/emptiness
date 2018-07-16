@@ -27,7 +27,7 @@ void MainWindow::init()
 
     QFont font;
     font.setFamily("Ubuntu Mono");
-    font.setPointSize(14);
+    font.setPointSize(12);
     editor->setFont(font);
     title->setFont(font);
 
@@ -46,6 +46,8 @@ void MainWindow::init()
 
     layout->addWidget(title);
     layout->addWidget(editor);
+
+    editor->setFocus();
 }
 
 void MainWindow::openInitialFile()
@@ -92,7 +94,13 @@ void MainWindow::saveFile(QPlainTextEdit* editor, QString path)
 bool MainWindow::updateFilePath()
 {
     filePath = title->text();
-    if (filePath == "") return false;
+
+    if (filePath == "")
+    {
+        title->setFocus();
+        return false;
+    }
+
     return true;
 }
 
