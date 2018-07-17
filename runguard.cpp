@@ -104,7 +104,7 @@ void RunGuard::run()
 
         memoryLock.release();
 
-        sleep(1);
+        msleep(100);
     }
 }
 

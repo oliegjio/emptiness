@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QFileInfo>
+#include <QDir>
 
 #include "plaintextedit.h"
 #include "lineedit.h"
@@ -32,8 +33,11 @@ private:
     void init();
     void openInitialFile();
     bool updateFilePath();
+
     void loadFile(QPlainTextEdit* editor, QString path);
     void saveFile(QPlainTextEdit* editor, QString path);
+    void createPath(QString path);
+
     QString getAbsoluteFilePath(QString path);
 
     void keyPressEvent(QKeyEvent* event) override;

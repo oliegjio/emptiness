@@ -92,9 +92,20 @@ void MainWindow::loadFile(QPlainTextEdit* editor, QString path)
     }
 }
 
+void MainWindow::createPath(QString path)
+{
+    QFileInfo info(path);
+    QString absoluteDirPath = info.absoluteDir().absolutePath();
+
+    QDir directory(absoluteDirPath);
+    directory.mkpath(absoluteDirPath);
+}
+
 void MainWindow::saveFile(QPlainTextEdit* editor, QString path)
 {
     QFile file(path);
+
+    createPath(path);
 
     if (file.open(QIODevice::ReadWrite))
     {
