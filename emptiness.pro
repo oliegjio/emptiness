@@ -25,10 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    plaintextedit.cpp \
+    lineedit.cpp \
+    runguard.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    plaintextedit.h \
+    lineedit.h \
+    runguard.h
 
 RESOURCES += \
     resources.qrc

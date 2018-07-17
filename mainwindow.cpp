@@ -1,14 +1,13 @@
 #include "mainwindow.h"
 
-#include <QtDebug>
-
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(RunGuard* guard, QWidget *parent)
     : QMainWindow(parent)
+    , guard(guard)
 {
-    editor = new QPlainTextEdit();
+    editor = new PlainTextEdit();
     layout = new QVBoxLayout();
     centralWidget = new QWidget();
-    title = new QLineEdit();
+    title = new LineEdit();
 
     init();
     openInitialFile();
@@ -47,7 +46,19 @@ void MainWindow::init()
     layout->addWidget(title);
     layout->addWidget(editor);
 
+    editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     editor->setFocus();
+
+    connect(guard, SIGNAL(sharedMemoryChanged(QString)), this, SLOT(setFilePath(QString)));
+}
+
+void MainWindow::setFilePath(const QString& path)
+{
+    filePath = path;
+    title->setText(getAbsoluteFilePath(filePath));
+    loadFile(editor, filePath);
 }
 
 void MainWindow::openInitialFile()
@@ -55,7 +66,7 @@ void MainWindow::openInitialFile()
     if (QCoreApplication::arguments().length() == 1) return;
 
     filePath = QCoreApplication::arguments().at(1);
-    title->setText(filePath);
+    title->setText(getAbsoluteFilePath(filePath));
     loadFile(editor, filePath);
 }
 
@@ -63,7 +74,11 @@ void MainWindow::loadFile(QPlainTextEdit* editor, QString path)
 {
     QFile file(path);
 
-    if (!file.exists(path)) return;
+    if (!file.exists(path))
+    {
+        editor->clear();
+        return;
+    }
 
     QString text;
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -80,8 +95,6 @@ void MainWindow::loadFile(QPlainTextEdit* editor, QString path)
 void MainWindow::saveFile(QPlainTextEdit* editor, QString path)
 {
     QFile file(path);
-
-    if (!file.exists(path)) return;
 
     if (file.open(QIODevice::ReadWrite))
     {
@@ -104,6 +117,12 @@ bool MainWindow::updateFilePath()
     return true;
 }
 
+QString MainWindow::getAbsoluteFilePath(QString path)
+{
+    QFileInfo info(path);
+    return info.absoluteFilePath();
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
@@ -111,6 +130,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     if (key == Qt::Key_S)
     {
         if (updateFilePath()) saveFile(editor, filePath);
+    }
+    else if (key == Qt::Key_Q)
+    {
+        exit(EXIT_SUCCESS);
     }
 }
 

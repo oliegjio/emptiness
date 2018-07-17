@@ -7,29 +7,39 @@
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QLineEdit>
+#include <QFileInfo>
+
+#include "plaintextedit.h"
+#include "lineedit.h"
+#include "runguard.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget* parent = 0);
+    MainWindow(RunGuard* guard, QWidget* parent = 0);
     ~MainWindow();
 
 private:
     QWidget* centralWidget;
     QVBoxLayout* layout;
-    QPlainTextEdit* editor;
-    QLineEdit* title;
+    PlainTextEdit* editor;
+    LineEdit* title;
     QString filePath = "";
+    RunGuard* guard;
 
     void init();
     void openInitialFile();
     bool updateFilePath();
     void loadFile(QPlainTextEdit* editor, QString path);
     void saveFile(QPlainTextEdit* editor, QString path);
+    QString getAbsoluteFilePath(QString path);
 
-    void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
+
+private slots:
+    void setFilePath(const QString& path);
 };
 
 #endif // MAINWINDOW_H
