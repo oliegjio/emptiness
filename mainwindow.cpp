@@ -131,6 +131,7 @@ void MainWindow::saveFile(const QString& path)
 
     createPath(path);
 
+    file.resize(0);
     if (file.open(QIODevice::ReadWrite))
     {
         QTextStream stream(&file);
