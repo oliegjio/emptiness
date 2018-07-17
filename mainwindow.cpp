@@ -131,8 +131,8 @@ void MainWindow::saveFile(const QString& path)
 
     createPath(path);
 
-    file.resize(0);
-    if (file.open(QIODevice::ReadWrite))
+//    file.resize(0);
+    if (file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
     {
         QTextStream stream(&file);
         QString text = editor->document()->toPlainText();
