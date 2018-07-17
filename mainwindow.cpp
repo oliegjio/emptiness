@@ -53,6 +53,9 @@ void MainWindow::init()
 
     editor->setFocus();
 
+    editor->setFocusPolicy(Qt::ClickFocus);
+    titleBar->setFocusPolicy(Qt::ClickFocus);
+
     connect(singleApplication, &SingleApplication::sharedMemoryChanged, this, &MainWindow::updateWithNewPath);
     connect(titleBar, &LineEdit::returnPressed, this, &MainWindow::returnPressed);
 }
