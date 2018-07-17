@@ -1,6 +1,4 @@
-#include "runguard.h"
-
-#include <QtDebug>
+#include "singleapplication.h"
 
 namespace {
     QString generateKeyHash(const QString& key, const QString& salt)
@@ -15,7 +13,7 @@ namespace {
     }
 }
 
-RunGuard::RunGuard(const QString& key, QObject* parent)
+SingleApplication::SingleApplication(const QString& key, QObject* parent)
     : QThread(parent)
     , key(key)
     , memoryLockKey(generateKeyHash(key, "_memoryLockKey"))
@@ -25,18 +23,18 @@ RunGuard::RunGuard(const QString& key, QObject* parent)
 {
     memoryLock.acquire();
     {
-        QSharedMemory fix(sharedMemoryKey);
-        fix.attach();
+        QSharedMemory unixFix(sharedMemoryKey);
+        unixFix.attach();
     }
     memoryLock.release();
 }
 
-RunGuard::~RunGuard()
+SingleApplication::~SingleApplication()
 {
     release();
 }
 
-bool RunGuard::isAnotherRunning()
+bool SingleApplication::isAnotherRunning()
 {
     if (sharedMemory.isAttached()) return false;
 
@@ -48,26 +46,30 @@ bool RunGuard::isAnotherRunning()
     return isRunning;
 }
 
-bool RunGuard::tryToRun()
+void SingleApplication::writePathToDataString()
+{
+    memoryLock.acquire();
+    sharedMemory.attach();
+
+    char* data = (char*) sharedMemory.data();
+    if (QCoreApplication::arguments().length() != 1)
+    {
+        QString pathString = QCoreApplication::arguments().at(1);
+        char* path = pathString.toLocal8Bit().data();
+
+        memset(data, 0, dataStringSize);
+        memcpy(data, path, sizeof(char) * pathString.length());
+    }
+
+    sharedMemory.detach();
+    memoryLock.release();
+}
+
+bool SingleApplication::tryToRun()
 {
     if (isAnotherRunning())
     {
-        memoryLock.acquire();
-        sharedMemory.attach();
-
-        char* data = (char*) sharedMemory.data();
-        if (QCoreApplication::arguments().length() != 1)
-        {
-            QString pathString = QCoreApplication::arguments().at(1);
-            char* path = pathString.toLocal8Bit().data();
-
-            memset(data, 0, dataStringSize);
-            memcpy(data, path, sizeof(char) * pathString.length());
-        }
-
-        sharedMemory.detach();
-        memoryLock.release();
-
+        writePathToDataString();
         return false;
     }
 
@@ -81,13 +83,13 @@ bool RunGuard::tryToRun()
         return false;
     }
 
-    dataString = (char*) sharedMemory.data();
     start();
+    dataString = (char*) sharedMemory.data();
 
     return true;
 }
 
-void RunGuard::run()
+void SingleApplication::run()
 {
     char* oldDataString = (char*) malloc(dataStringSize);
 
@@ -108,7 +110,7 @@ void RunGuard::run()
     }
 }
 
-void RunGuard::release()
+void SingleApplication::release()
 {
     memoryLock.acquire();
     if (sharedMemory.isAttached()) sharedMemory.detach();

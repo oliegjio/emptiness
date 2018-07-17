@@ -2,11 +2,13 @@
 #define PLAINTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QKeyEvent>
 
-class PlainTextEdit : public QPlainTextEdit
+class TextEdit : public QPlainTextEdit
 {
 public:
-    PlainTextEdit();
+    TextEdit();
+    ~TextEdit();
 
 private:
     void handleTabKey();

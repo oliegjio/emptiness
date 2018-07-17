@@ -6,14 +6,15 @@
 #include <QCryptographicHash>
 #include <QCoreApplication>
 #include <QThread>
+#include <QFileInfo>
 
-class RunGuard : public QThread
+class SingleApplication : public QThread
 {
     Q_OBJECT
 
 public:
-    explicit RunGuard(const QString& key, QObject* parent = nullptr);
-    ~RunGuard();
+    explicit SingleApplication(const QString& key, QObject* parent = nullptr);
+    ~SingleApplication();
 
     bool isAnotherRunning();
     bool tryToRun();
@@ -29,6 +30,8 @@ private:
 
     char* dataString;
     const int dataStringSize = sizeof(char) * 500;
+
+    void writePathToDataString();
 
     void run() override;
 

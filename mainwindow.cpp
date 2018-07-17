@@ -1,16 +1,18 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(RunGuard* guard, QWidget *parent)
+#include <QtDebug>
+
+MainWindow::MainWindow(SingleApplication* singleApplication, QWidget *parent)
     : QMainWindow(parent)
-    , guard(guard)
+    , singleApplication(singleApplication)
 {
-    editor = new PlainTextEdit();
+    editor = new TextEdit();
     layout = new QVBoxLayout();
     centralWidget = new QWidget();
-    title = new LineEdit();
+    titleBar = new LineEdit();
 
     init();
-    openInitialFile();
+    updateWithNewPath(getAbsolutePathFromArguments());
 }
 
 void MainWindow::init()
@@ -26,24 +28,24 @@ void MainWindow::init()
 
     QFont font;
     font.setFamily("Ubuntu Mono");
-    font.setPointSize(12);
+    font.setPointSize(14);
     editor->setFont(font);
-    title->setFont(font);
+    titleBar->setFont(font);
 
     QPalette editorPalette = editor->palette();
     editorPalette.setColor(QPalette::Base, QColor(0, 0, 0));
     editorPalette.setColor(QPalette::Text, QColor(255, 255, 255));
     editor->setPalette(editorPalette);
 
-    QPalette titlePalette = title->palette();
+    QPalette titlePalette = titleBar->palette();
     titlePalette.setColor(QPalette::Base, QColor(50, 50, 50));
     titlePalette.setColor(QPalette::Text, QColor(255, 255, 255));
-    title->setPalette(titlePalette);
+    titleBar->setPalette(titlePalette);
 
-    title->setFrame(false);
+    titleBar->setFrame(false);
     editor->setFrameStyle(0);
 
-    layout->addWidget(title);
+    layout->addWidget(titleBar);
     layout->addWidget(editor);
 
     editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -51,26 +53,30 @@ void MainWindow::init()
 
     editor->setFocus();
 
-    connect(guard, SIGNAL(sharedMemoryChanged(QString)), this, SLOT(setFilePath(QString)));
+    connect(singleApplication, &SingleApplication::sharedMemoryChanged, this, &MainWindow::updateWithNewPath);
+    connect(titleBar, &LineEdit::returnPressed, this, &MainWindow::returnPressed);
 }
 
-void MainWindow::setFilePath(const QString& path)
+void MainWindow::returnPressed()
 {
-    filePath = path;
-    title->setText(getAbsoluteFilePath(filePath));
-    loadFile(editor, filePath);
+    openFile(titleBar->text());
 }
 
-void MainWindow::openInitialFile()
+QString MainWindow::getAbsolutePathFromArguments()
 {
-    if (QCoreApplication::arguments().length() == 1) return;
-
-    filePath = QCoreApplication::arguments().at(1);
-    title->setText(getAbsoluteFilePath(filePath));
-    loadFile(editor, filePath);
+    QStringList arguments = QCoreApplication::arguments();
+    if (arguments.length() == 1) return "";
+    return getAbsoluteFilePath(arguments.at(1));
 }
 
-void MainWindow::loadFile(QPlainTextEdit* editor, QString path)
+void MainWindow::updateWithNewPath(const QString& path)
+{
+    currentFileAbsolutePath = path;
+    titleBar->setText(path);
+    openFile(path);
+}
+
+void MainWindow::openFile(const QString& path)
 {
     QFile file(path);
 
@@ -92,8 +98,10 @@ void MainWindow::loadFile(QPlainTextEdit* editor, QString path)
     }
 }
 
-void MainWindow::createPath(QString path)
+void MainWindow::createPath(const QString& path)
 {
+    if (QDir(path).exists()) return;
+
     QFileInfo info(path);
     QString absoluteDirPath = info.absoluteDir().absolutePath();
 
@@ -101,7 +109,7 @@ void MainWindow::createPath(QString path)
     directory.mkpath(absoluteDirPath);
 }
 
-void MainWindow::saveFile(QPlainTextEdit* editor, QString path)
+void MainWindow::saveFile(const QString& path)
 {
     QFile file(path);
 
@@ -115,37 +123,31 @@ void MainWindow::saveFile(QPlainTextEdit* editor, QString path)
     }
 }
 
-bool MainWindow::updateFilePath()
-{
-    filePath = title->text();
-
-    if (filePath == "")
-    {
-        title->setFocus();
-        return false;
-    }
-
-    return true;
-}
-
-QString MainWindow::getAbsoluteFilePath(QString path)
+QString MainWindow::getAbsoluteFilePath(const QString& path)
 {
     QFileInfo info(path);
     return info.absoluteFilePath();
 }
 
+void MainWindow::toggleFocus()
+{
+    if (focusWidget() == editor) titleBar->setFocus();
+    else if (focusWidget() == titleBar) editor->setFocus();
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
+    int modifier = event->modifiers();
 
-    if (key == Qt::Key_S)
-    {
-        if (updateFilePath()) saveFile(editor, filePath);
-    }
-    else if (key == Qt::Key_Q)
-    {
+    if (modifier == Qt::ControlModifier && key == Qt::Key_S)
+        saveFile(currentFileAbsolutePath);
+
+    if (modifier == Qt::ControlModifier && key == Qt::Key_Q)
         exit(EXIT_SUCCESS);
-    }
+
+    if (modifier == Qt::NoModifier && key == Qt::Key_Escape)
+        toggleFocus();
 }
 
 MainWindow::~MainWindow() {}

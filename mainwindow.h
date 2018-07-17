@@ -2,48 +2,47 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QTextStream>
 #include <QCoreApplication>
-#include <QLineEdit>
 #include <QFileInfo>
 #include <QDir>
 
-#include "plaintextedit.h"
+#include "textedit.h"
 #include "lineedit.h"
-#include "runguard.h"
+#include "singleapplication.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(RunGuard* guard, QWidget* parent = 0);
+    MainWindow(SingleApplication* singleApplication, QWidget* parent = nullptr);
     ~MainWindow();
 
 private:
     QWidget* centralWidget;
     QVBoxLayout* layout;
-    PlainTextEdit* editor;
-    LineEdit* title;
-    QString filePath = "";
-    RunGuard* guard;
+    TextEdit* editor;
+    LineEdit* titleBar;
+    QString currentFileAbsolutePath = "";
+    SingleApplication* singleApplication;
 
     void init();
-    void openInitialFile();
-    bool updateFilePath();
 
-    void loadFile(QPlainTextEdit* editor, QString path);
-    void saveFile(QPlainTextEdit* editor, QString path);
-    void createPath(QString path);
+    void openFile(const QString& path);
+    void saveFile(const QString& path);
+    void createPath(const QString& path);
+    void toggleFocus();
 
-    QString getAbsoluteFilePath(QString path);
+    QString getAbsoluteFilePath(const QString& path);
+    QString getAbsolutePathFromArguments();
 
     void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
-    void setFilePath(const QString& path);
+    void updateWithNewPath(const QString& path);
+    void returnPressed();
 };
 
 #endif // MAINWINDOW_H

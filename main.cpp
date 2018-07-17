@@ -2,13 +2,13 @@
 
 #include <QApplication>
 
-#include "runguard.h"
+#include "singleapplication.h"
 
 int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);
 
-    RunGuard* guard = new RunGuard("Emptiness");
+    SingleApplication* guard = new SingleApplication("Emptiness");
     if (!guard->tryToRun()) return EXIT_FAILURE;
 
     application.setWindowIcon(QIcon("icon.png"));
