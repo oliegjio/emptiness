@@ -12,11 +12,13 @@ MainWindow::MainWindow(SingleApplication* singleApplication, QWidget *parent)
     titleBar = new LineEdit();
 
     init();
-    updateWithNewPath(getAbsolutePathFromArguments());
+    newFile(getAbsolutePathFromArguments());
 }
 
 void MainWindow::init()
 {
+    resize(QSize(800, 500));
+
     setCentralWidget(centralWidget);
     centralWidget->setLayout(layout);
 
@@ -56,7 +58,7 @@ void MainWindow::init()
     editor->setFocusPolicy(Qt::ClickFocus);
     titleBar->setFocusPolicy(Qt::ClickFocus);
 
-    connect(singleApplication, &SingleApplication::sharedMemoryChanged, this, &MainWindow::updateWithNewPath);
+    connect(singleApplication, &SingleApplication::sharedMemoryChanged, this, &MainWindow::sharedMemoryChanged);
     connect(titleBar, &LineEdit::returnPressed, this, &MainWindow::returnPressed);
 }
 
@@ -65,16 +67,21 @@ void MainWindow::returnPressed()
     openFile(titleBar->text());
 }
 
+void MainWindow::sharedMemoryChanged(const QString& path)
+{
+    newFile(toAbsolutePath(path));
+}
+
 QString MainWindow::getAbsolutePathFromArguments()
 {
     QStringList arguments = QCoreApplication::arguments();
     if (arguments.length() == 1) return "";
-    return getAbsoluteFilePath(arguments.at(1));
+    else return toAbsolutePath(arguments.at(1));
 }
 
-void MainWindow::updateWithNewPath(const QString& path)
+void MainWindow::newFile(const QString& path)
 {
-    currentFileAbsolutePath = path;
+    currentFilePath = path;
     titleBar->setText(path);
     openFile(path);
 }
@@ -126,7 +133,7 @@ void MainWindow::saveFile(const QString& path)
     }
 }
 
-QString MainWindow::getAbsoluteFilePath(const QString& path)
+QString MainWindow::toAbsolutePath(const QString& path)
 {
     QFileInfo info(path);
     return info.absoluteFilePath();
@@ -144,7 +151,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     int modifier = event->modifiers();
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_S)
-        saveFile(currentFileAbsolutePath);
+        saveFile(currentFilePath);
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_Q)
         exit(EXIT_SUCCESS);

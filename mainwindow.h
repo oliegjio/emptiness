@@ -25,7 +25,7 @@ private:
     QVBoxLayout* layout;
     TextEdit* editor;
     LineEdit* titleBar;
-    QString currentFileAbsolutePath = "";
+    QString currentFilePath = "";
     SingleApplication* singleApplication;
 
     void init();
@@ -33,15 +33,15 @@ private:
     void openFile(const QString& path);
     void saveFile(const QString& path);
     void createPath(const QString& path);
+    void newFile(const QString& path);
     void toggleFocus();
-
-    QString getAbsoluteFilePath(const QString& path);
+    QString toAbsolutePath(const QString& path);
     QString getAbsolutePathFromArguments();
 
     void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
-    void updateWithNewPath(const QString& path);
+    void sharedMemoryChanged(const QString& path);
     void returnPressed();
 };
 

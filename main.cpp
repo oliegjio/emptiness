@@ -8,15 +8,14 @@ int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);
 
-    SingleApplication* guard = new SingleApplication("Emptiness");
-    if (!guard->tryToRun()) return EXIT_FAILURE;
+    SingleApplication* singleApplication = new SingleApplication("Emptiness");
+    if (!singleApplication->tryToRun()) return EXIT_SUCCESS;
 
     application.setWindowIcon(QIcon("icon.png"));
     QCoreApplication::setApplicationName("Emptiness");
 
-    MainWindow window(guard);
+    MainWindow window(singleApplication);
     window.show();
-    window.setFixedSize(800, 450);
 
     return application.exec();
 }
