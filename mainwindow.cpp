@@ -117,8 +117,6 @@ void MainWindow::openFile(const QString& path)
 
 void MainWindow::createPath(const QString& path)
 {
-    if (QDir(path).exists()) return;
-
     QFileInfo info(path);
     QString absoluteDirPath = info.absoluteDir().absolutePath();
 
@@ -158,7 +156,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     int modifier = event->modifiers();
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_S)
+    {
+        currentFilePath = titleBar->text();
         saveFile(currentFilePath);
+    }
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_Q)
         exit(EXIT_SUCCESS);
