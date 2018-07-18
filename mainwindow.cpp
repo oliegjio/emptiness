@@ -69,6 +69,7 @@ void MainWindow::init()
 
 void MainWindow::returnPressed()
 {
+    editor->setFocus();
     openFile(titleBar->text());
 }
 
