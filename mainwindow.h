@@ -41,7 +41,8 @@ private:
     void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
-    void sharedMemoryChanged(const QString& path);
+    void sharedMemoryForPathChanged(const QString& path);
+    void sharedMemoryForWorkingDirectoryChanged(const QString& path);
     void returnPressed();
 };
 

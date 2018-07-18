@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QFileInfo>
+#include <QDir>
 
 class SingleApplication : public QThread
 {
@@ -22,21 +23,32 @@ public:
 
 private:
     const QString key;
-    const QString memoryLockKey;
-    const QString sharedMemoryKey;
 
-    QSharedMemory sharedMemory;
-    QSystemSemaphore memoryLock;
+    const QString memoryLockForPath_Key;
+    const QString sharedMemoryForPath_Key;
 
-    char* dataString;
-    const int dataStringSize = sizeof(char) * 500;
+    const QString memoryLockForWorkingDirectory_Key;
+    const QString sharedMemoryForWorkingDirectory_Key;
+
+    QSharedMemory sharedMemoryForPath;
+    QSystemSemaphore memoryLockForPath;
+
+    QSharedMemory sharedMemoryForWorkingDirectory;
+    QSystemSemaphore memoryLockForWorkingDirectory;
+
+    char* dataStringForPath;
+    char* dataStringForWorkingDirectory;
+
+    const int dataSegmentsSize = sizeof(char) * 500;
 
     void writePathToDataString();
+    void writeWorkingDirectoryToDataString();
 
     void run() override;
 
 signals:
-    void sharedMemoryChanged(const QString& result);
+    void sharedMemoryForPathChanged(const QString& result);
+    void sharedMemoryForWorkingDirectoryChanged(const QString& result);
 };
 
 #endif // RUNGUARD_H

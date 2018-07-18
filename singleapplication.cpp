@@ -16,17 +16,31 @@ namespace {
 SingleApplication::SingleApplication(const QString& key, QObject* parent)
     : QThread(parent)
     , key(key)
-    , memoryLockKey(generateKeyHash(key, "_memoryLockKey"))
-    , sharedMemoryKey(generateKeyHash(key, "_sharedMemoryKey"))
-    , sharedMemory(sharedMemoryKey)
-    , memoryLock(memoryLockKey, 1)
+
+    , memoryLockForPath_Key(generateKeyHash(key, "_memoryLockForPathKey"))
+    , sharedMemoryForPath_Key(generateKeyHash(key, "_sharedMemoryForPathKey"))
+
+    , memoryLockForWorkingDirectory_Key(generateKeyHash(key, "_memoryLockForWorkingDirectory_Key"))
+    , sharedMemoryForWorkingDirectory_Key(generateKeyHash(key, "_sharedMemoryForWorkingDirectory_Key"))
+
+    , sharedMemoryForPath(sharedMemoryForPath_Key)
+    , memoryLockForPath(memoryLockForPath_Key, 1)
+
+    , sharedMemoryForWorkingDirectory(sharedMemoryForWorkingDirectory_Key)
+    , memoryLockForWorkingDirectory(memoryLockForWorkingDirectory_Key, 1)
 {
-    memoryLock.acquire();
+    memoryLockForPath.acquire();
     {
-        QSharedMemory unixFix(sharedMemoryKey);
-        unixFix.attach();
+        QSharedMemory unixFix1(sharedMemoryForPath_Key);
+        unixFix1.attach();
     }
-    memoryLock.release();
+    memoryLockForPath.release();
+    memoryLockForWorkingDirectory.acquire();
+    {
+        QSharedMemory unixFix2(sharedMemoryForWorkingDirectory_Key);
+        unixFix2.attach();
+    }
+    memoryLockForWorkingDirectory.release();
 }
 
 SingleApplication::~SingleApplication()
@@ -36,33 +50,58 @@ SingleApplication::~SingleApplication()
 
 bool SingleApplication::isAnotherRunning()
 {
-    if (sharedMemory.isAttached()) return false;
+    if (sharedMemoryForPath.isAttached()) return false;
+    if (sharedMemoryForWorkingDirectory.isAttached()) return false;
 
-    memoryLock.acquire();
-    const bool isRunning = sharedMemory.attach();
-    if (isRunning) sharedMemory.detach();
-    memoryLock.release();
+    memoryLockForPath.acquire();
+    memoryLockForWorkingDirectory.acquire();
 
-    return isRunning;
+    const bool isRunning1 = sharedMemoryForPath.attach();
+    if (isRunning1) sharedMemoryForPath.detach();
+
+    const bool isRunning2 = sharedMemoryForWorkingDirectory.attach();
+    if (isRunning2) sharedMemoryForWorkingDirectory.detach();
+
+    memoryLockForWorkingDirectory.release();
+    memoryLockForPath.release();
+
+    return (isRunning1 || isRunning2);
 }
 
 void SingleApplication::writePathToDataString()
 {
-    memoryLock.acquire();
-    sharedMemory.attach();
+    memoryLockForPath.acquire();
+    sharedMemoryForPath.attach();
 
-    char* data = (char*) sharedMemory.data();
+    char* data = (char*) sharedMemoryForPath.data();
     if (QCoreApplication::arguments().length() != 1)
     {
         QString pathString = QCoreApplication::arguments().at(1);
         char* path = pathString.toLocal8Bit().data();
 
-        memset(data, 0, dataStringSize);
+        memset(data, 0, dataSegmentsSize);
         memcpy(data, path, sizeof(char) * pathString.length());
     }
 
-    sharedMemory.detach();
-    memoryLock.release();
+    sharedMemoryForPath.detach();
+    memoryLockForPath.release();
+}
+
+void SingleApplication::writeWorkingDirectoryToDataString()
+{
+    memoryLockForWorkingDirectory.acquire();
+    sharedMemoryForWorkingDirectory.attach();
+
+    char* data = (char*) sharedMemoryForWorkingDirectory.data();
+
+    QString workingDirectoryString = QDir::currentPath();
+    char* workingDirectory = workingDirectoryString.toLocal8Bit().data();
+
+    memset(data, 0, dataSegmentsSize);
+    memcpy(data, workingDirectory, sizeof(char) * workingDirectoryString.length());
+
+    sharedMemoryForWorkingDirectory.detach();
+    memoryLockForWorkingDirectory.release();
 }
 
 bool SingleApplication::tryToRun()
@@ -70,41 +109,55 @@ bool SingleApplication::tryToRun()
     if (isAnotherRunning())
     {
         writePathToDataString();
+        writeWorkingDirectoryToDataString();
         return false;
     }
 
-    memoryLock.acquire();
-    const bool result = sharedMemory.create(dataStringSize);
-    memoryLock.release();
+    memoryLockForPath.acquire();
+    const bool result1 = sharedMemoryForPath.create(dataSegmentsSize);
+    memoryLockForPath.release();
 
-    if (!result)
+    memoryLockForWorkingDirectory.acquire();
+    const bool result2 = sharedMemoryForWorkingDirectory.create(dataSegmentsSize);
+    memoryLockForWorkingDirectory.release();
+
+    if (!result1 || !result2)
     {
         release();
         return false;
     }
 
     start();
-    dataString = (char*) sharedMemory.data();
+    dataStringForPath = (char*) sharedMemoryForPath.data();
+    dataStringForWorkingDirectory = (char*) sharedMemoryForWorkingDirectory.data();
 
     return true;
 }
 
 void SingleApplication::run()
 {
-    char* oldDataString = (char*) malloc(dataStringSize);
+    char* oldDataStringForPath = (char*) malloc(dataSegmentsSize);
+    char* oldDataStringForWorkingDirectory = (char*) malloc(dataSegmentsSize);
 
     while (true)
     {
-        memoryLock.acquire();
-
-        if (QString(dataString) != QString(oldDataString))
+        memoryLockForWorkingDirectory.acquire();
+        if (QString(dataStringForWorkingDirectory) != QString(oldDataStringForWorkingDirectory))
         {
-            emit sharedMemoryChanged(QString(dataString));
+            emit sharedMemoryForWorkingDirectoryChanged(QString(dataStringForWorkingDirectory));
         }
-        memset(oldDataString, 0, dataStringSize);
-        memcpy(oldDataString, dataString, dataStringSize);
+        memset(oldDataStringForWorkingDirectory, 0, dataSegmentsSize);
+        memcpy(oldDataStringForWorkingDirectory, dataStringForWorkingDirectory, dataSegmentsSize);
+        memoryLockForWorkingDirectory.release();
 
-        memoryLock.release();
+        memoryLockForPath.acquire();
+        if (QString(dataStringForPath) != QString(oldDataStringForPath))
+        {
+            emit sharedMemoryForPathChanged(QString(dataStringForPath));
+        }
+        memset(oldDataStringForPath, 0, dataSegmentsSize);
+        memcpy(oldDataStringForPath, dataStringForPath, dataSegmentsSize);
+        memoryLockForPath.release();
 
         msleep(100);
     }
@@ -112,7 +165,11 @@ void SingleApplication::run()
 
 void SingleApplication::release()
 {
-    memoryLock.acquire();
-    if (sharedMemory.isAttached()) sharedMemory.detach();
-    memoryLock.release();
+    memoryLockForPath.acquire();
+    if (sharedMemoryForPath.isAttached()) sharedMemoryForPath.detach();
+    memoryLockForPath.release();
+
+    memoryLockForWorkingDirectory.acquire();
+    if (sharedMemoryForWorkingDirectory.isAttached()) sharedMemoryForWorkingDirectory.detach();
+    memoryLockForWorkingDirectory.release();
 }

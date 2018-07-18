@@ -1,7 +1,5 @@
 #include "mainwindow.h"
 
-#include <QtDebug>
-
 MainWindow::MainWindow(SingleApplication* singleApplication, QWidget *parent)
     : QMainWindow(parent)
     , singleApplication(singleApplication)
@@ -58,7 +56,14 @@ void MainWindow::init()
     editor->setFocusPolicy(Qt::ClickFocus);
     titleBar->setFocusPolicy(Qt::ClickFocus);
 
-    connect(singleApplication, &SingleApplication::sharedMemoryChanged, this, &MainWindow::sharedMemoryChanged);
+    connect(singleApplication,
+            &SingleApplication::sharedMemoryForWorkingDirectoryChanged,
+            this,
+            &MainWindow::sharedMemoryForWorkingDirectoryChanged);
+    connect(singleApplication,
+            &SingleApplication::sharedMemoryForPathChanged,
+            this,
+            &MainWindow::sharedMemoryForPathChanged);
     connect(titleBar, &LineEdit::returnPressed, this, &MainWindow::returnPressed);
 }
 
@@ -67,9 +72,14 @@ void MainWindow::returnPressed()
     openFile(titleBar->text());
 }
 
-void MainWindow::sharedMemoryChanged(const QString& path)
+void MainWindow::sharedMemoryForPathChanged(const QString& path)
 {
     newFile(toAbsolutePath(path));
+}
+
+void MainWindow::sharedMemoryForWorkingDirectoryChanged(const QString& path)
+{
+    QDir::setCurrent(path);
 }
 
 QString MainWindow::getAbsolutePathFromArguments()
