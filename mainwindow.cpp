@@ -100,11 +100,8 @@ void MainWindow::openFile(const QString& path)
 {
     QFile file(path);
 
-    if (!file.exists(path))
-    {
-        editor->clear();
-        return;
-    }
+    editor->clear();
+    if (!file.exists(path)) return;
 
     QString text;
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
