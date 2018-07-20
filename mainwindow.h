@@ -7,10 +7,12 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
+#include <QClipboard>
 
 #include "textedit.h"
 #include "lineedit.h"
 #include "singleapplication.h"
+#include "randomstring.h"
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +29,7 @@ private:
     LineEdit* titleBar;
     QString currentFilePath = "";
     SingleApplication* singleApplication;
+    QClipboard* clipboard;
 
     void init();
 
@@ -37,6 +40,7 @@ private:
     void toggleFocus();
     QString toAbsolutePath(const QString& path);
     QString getAbsolutePathFromArguments();
+    void insertSourceHash();
 
     void keyPressEvent(QKeyEvent* event) override;
 

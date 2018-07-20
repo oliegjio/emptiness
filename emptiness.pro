@@ -28,13 +28,15 @@ SOURCES += \
         mainwindow.cpp \
     lineedit.cpp \
     singleapplication.cpp \
-    textedit.cpp
+    textedit.cpp \
+    randomstring.cpp
 
 HEADERS += \
         mainwindow.h \
     lineedit.h \
     singleapplication.h \
-    textedit.h
+    textedit.h \
+    randomstring.h
 
 RESOURCES += \
     resources.qrc

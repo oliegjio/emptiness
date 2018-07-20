@@ -151,6 +151,19 @@ void MainWindow::toggleFocus()
     else if (focusWidget() == titleBar) editor->setFocus();
 }
 
+void MainWindow::insertSourceHash()
+{
+    char buffer[10];
+    randomString(buffer, sizeof(buffer));
+    QString r(buffer);
+
+    QTextCursor cursor = editor->textCursor();
+    cursor.insertText("[%" + r + "%]");
+    editor->setTextCursor(cursor);
+
+    clipboard->setText("[#" + r + "#]");
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
@@ -167,6 +180,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 
     if (modifier == Qt::NoModifier && key == Qt::Key_Escape)
         toggleFocus();
+
+    if (modifier == Qt::ControlModifier && key == Qt::Key_L)
+        insertSourceHash();
 }
 
 MainWindow::~MainWindow() {}
