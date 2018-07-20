@@ -1,0 +1,3 @@
+#!/bin/bash
+
+emp "$(pwd)/$(grep -lr \%$1\% | head -n 1)"
