@@ -11,7 +11,8 @@ public:
     ~TextEdit();
 
 private:
-    void handleTabKey();
+    void handleTabKeyPress();
+    void handleControlAltTabKeyPress();
 
     void keyPressEvent(QKeyEvent* event) override;
 };
