@@ -219,6 +219,8 @@ void MainWindow::toggleSearch()
         searchBar->setFocus();
         searchBarActive = true;
     }
+    oldSearchQuery = "";
+    searchBar->clear();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
