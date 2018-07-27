@@ -153,6 +153,10 @@ void MainWindow::openFile(const QString& path)
         {
             text = stream.readAll();
             editor->document()->setPlainText(text);
+
+            QTextCursor cursor = editor->textCursor();
+            cursor.setPosition(0);
+            editor->setTextCursor(cursor);
         }
     }
 }
@@ -190,6 +194,7 @@ void MainWindow::toggleFocus()
 {
     if (focusWidget() == editor) titleBar->setFocus();
     else if (focusWidget() == titleBar) editor->setFocus();
+    if (focusWidget() == searchBar) editor->setFocus();
 }
 
 void MainWindow::insertSourceHash()
