@@ -11,17 +11,23 @@ void SearchBar::keyPressEvent(QKeyEvent* event)
 
     if (modifier == Qt::ShiftModifier && key == Qt::Key_Return)
     {
-        emit shiftEnterPressed(text());
+        emit shiftEnterPressed(text(), true);
+        return;
+    }
+    else if (modifier == Qt::NoModifier && key == Qt::Key_Return)
+    {
+        emit keyPress(text(), true);
         return;
     }
     else if (modifier == Qt::ShiftModifier || modifier == Qt::ControlModifier || modifier == Qt::AltModifier)
     {
+        QLineEdit::keyPressEvent(event);
         return;
     }
     else
     {
         QLineEdit::keyPressEvent(event);
-        emit keyPress(text());
+        emit keyPress(text(), false);
     }
 }
 

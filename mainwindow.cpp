@@ -80,25 +80,32 @@ void MainWindow::init()
     connect(searchBar, &SearchBar::focusOut, this, &MainWindow::toggleSearch);
 }
 
-void MainWindow::searchForward(QString string)
+void MainWindow::searchForward(QString string, bool ignore)
 {
+    if (!ignore && oldSearchQuery.contains(string)) return;
+
     QTextDocument *document = editor->document();
     QTextCursor cursor = editor->textCursor();
 
     QTextCursor findCursor = document->find(string, cursor);
 
     if (!findCursor.isNull()) editor->setTextCursor(findCursor);
+
+    oldSearchQuery = string;
 }
 
-void MainWindow::searchBackward(QString string)
+void MainWindow::searchBackward(QString string, bool ignore)
 {
+    if (!ignore && oldSearchQuery.contains(string)) return;
+
     QTextDocument *document = editor->document();
     QTextCursor cursor = editor->textCursor();
 
     QTextCursor findCursor = document->find(string, cursor, QTextDocument::FindBackward);
-    findCursor = document->find(string, findCursor);
 
     if (!findCursor.isNull()) editor->setTextCursor(findCursor);
+
+    oldSearchQuery = string;
 }
 
 void MainWindow::returnPressed()

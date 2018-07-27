@@ -16,8 +16,8 @@ public:
     void focusOutEvent(QFocusEvent* event) override;
 
 signals:
-    void keyPress(QString string);
-    void shiftEnterPressed(QString string);
+    void keyPress(QString string, bool ignore);
+    void shiftEnterPressed(QString string, bool ignore);
     void focusOut();
 };
 
