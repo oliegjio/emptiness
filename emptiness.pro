@@ -26,17 +26,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    lineedit.cpp \
     singleapplication.cpp \
     textedit.cpp \
-    randomstring.cpp
+    randomstring.cpp \
+    searchbar.cpp \
+    titlebar.cpp
 
 HEADERS += \
         mainwindow.h \
-    lineedit.h \
     singleapplication.h \
     textedit.h \
-    randomstring.h
+    randomstring.h \
+    searchbar.h \
+    titlebar.h
 
 RESOURCES += \
     resources.qrc

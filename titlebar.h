@@ -4,13 +4,13 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 
-class LineEdit : public QLineEdit
+class TitleBar : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    LineEdit();
-    ~LineEdit();
+    TitleBar();
+    ~TitleBar();
 
 private:
     void keyPressEvent(QKeyEvent* event) override;

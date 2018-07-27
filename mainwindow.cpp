@@ -7,7 +7,8 @@ MainWindow::MainWindow(SingleApplication* singleApplication, QWidget *parent)
     editor = new TextEdit();
     layout = new QVBoxLayout();
     centralWidget = new QWidget();
-    titleBar = new LineEdit();
+    titleBar = new TitleBar();
+    searchBar = new SearchBar();
 
     init();
     newFile(getAbsolutePathFromArguments());
@@ -29,6 +30,7 @@ void MainWindow::init()
     QFont font;
     font.setFamily("Ubuntu Mono");
     font.setPointSize(14);
+    searchBar->setFont(font);
     editor->setFont(font);
     titleBar->setFont(font);
 
@@ -42,16 +44,24 @@ void MainWindow::init()
     titlePalette.setColor(QPalette::Text, QColor(255, 255, 255));
     titleBar->setPalette(titlePalette);
 
+    QPalette searchPalette = searchBar->palette();
+    searchPalette.setColor(QPalette::Base, QColor(50, 50, 100));
+    searchPalette.setColor(QPalette::Text, QColor(255, 255, 255));
+    searchBar->setPalette(searchPalette);
+
     titleBar->setFrame(false);
+    searchBar->setFrame(false);
     editor->setFrameStyle(0);
 
     layout->addWidget(titleBar);
     layout->addWidget(editor);
+    layout->addWidget(searchBar);
 
     editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     editor->setFocus();
+    searchBar->hide();
 
     editor->setFocusPolicy(Qt::ClickFocus);
     titleBar->setFocusPolicy(Qt::ClickFocus);
@@ -64,7 +74,31 @@ void MainWindow::init()
             &SingleApplication::sharedMemoryForPathChanged,
             this,
             &MainWindow::sharedMemoryForPathChanged);
-    connect(titleBar, &LineEdit::returnPressed, this, &MainWindow::returnPressed);
+    connect(titleBar, &TitleBar::returnPressed, this, &MainWindow::returnPressed);
+    connect(searchBar, &SearchBar::keyPress, this, &MainWindow::searchForward);
+    connect(searchBar, &SearchBar::shiftEnterPressed, this, &MainWindow::searchBackward);
+    connect(searchBar, &SearchBar::focusOut, this, &MainWindow::toggleSearch);
+}
+
+void MainWindow::searchForward(QString string)
+{
+    QTextDocument *document = editor->document();
+    QTextCursor cursor = editor->textCursor();
+
+    QTextCursor findCursor = document->find(string, cursor);
+
+    if (!findCursor.isNull()) editor->setTextCursor(findCursor);
+}
+
+void MainWindow::searchBackward(QString string)
+{
+    QTextDocument *document = editor->document();
+    QTextCursor cursor = editor->textCursor();
+
+    QTextCursor findCursor = document->find(string, cursor, QTextDocument::FindBackward);
+    findCursor = document->find(string, findCursor);
+
+    if (!findCursor.isNull()) editor->setTextCursor(findCursor);
 }
 
 void MainWindow::returnPressed()
@@ -164,6 +198,22 @@ void MainWindow::insertSourceHash()
     clipboard->setText("[#" + r + "#]");
 }
 
+void MainWindow::toggleSearch()
+{
+    if (searchBarActive)
+    {
+        searchBar->hide();
+        editor->setFocus();
+        searchBarActive = false;
+    }
+    else
+    {
+        searchBar->show();
+        searchBar->setFocus();
+        searchBarActive = true;
+    }
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
@@ -183,6 +233,11 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_L)
         insertSourceHash();
+
+    if (modifier == Qt::ControlModifier && key == Qt::Key_F)
+        toggleSearch();
+
+    QMainWindow::keyPressEvent(event);
 }
 
 MainWindow::~MainWindow() {}

@@ -1,9 +1,9 @@
-#include "lineedit.h"
+#include "titlebar.h"
 
-LineEdit::LineEdit() : QLineEdit() {}
-LineEdit::~LineEdit() {}
+TitleBar::TitleBar() : QLineEdit() {}
+TitleBar::~TitleBar() {}
 
-void LineEdit::keyPressEvent(QKeyEvent* event)
+void TitleBar::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
     int modifier = event->modifiers();

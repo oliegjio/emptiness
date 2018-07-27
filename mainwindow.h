@@ -10,7 +10,8 @@
 #include <QClipboard>
 
 #include "textedit.h"
-#include "lineedit.h"
+#include "titlebar.h"
+#include "searchbar.h"
 #include "singleapplication.h"
 #include "randomstring.h"
 
@@ -26,10 +27,12 @@ private:
     QWidget* centralWidget;
     QVBoxLayout* layout;
     TextEdit* editor;
-    LineEdit* titleBar;
+    TitleBar* titleBar;
+    SearchBar* searchBar;
     QString currentFilePath = "";
     SingleApplication* singleApplication;
     QClipboard* clipboard;
+    bool searchBarActive = false;
 
     void init();
 
@@ -48,6 +51,9 @@ private slots:
     void sharedMemoryForPathChanged(const QString& path);
     void sharedMemoryForWorkingDirectoryChanged(const QString& path);
     void returnPressed();
+    void searchForward(QString string);
+    void searchBackward(QString string);
+    void toggleSearch();
 };
 
 #endif // MAINWINDOW_H
