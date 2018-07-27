@@ -19,7 +19,7 @@ void SearchBar::keyPressEvent(QKeyEvent* event)
         emit keyPress(text(), true);
         return;
     }
-    else if (modifier == Qt::ShiftModifier || modifier == Qt::ControlModifier || modifier == Qt::AltModifier)
+    else if (modifier == Qt::ControlModifier || modifier == Qt::AltModifier)
     {
         QLineEdit::keyPressEvent(event);
         return;
