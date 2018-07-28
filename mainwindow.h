@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QClipboard>
+#include <QTextDocumentFragment>
 
 #include "textedit.h"
 #include "titlebar.h"

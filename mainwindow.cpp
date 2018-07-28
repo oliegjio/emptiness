@@ -221,7 +221,7 @@ void MainWindow::toggleSearch()
         searchBarActive = true;
     }
     oldSearchQuery = "";
-    searchBar->clear();
+    searchBar->setText(editor->textCursor().selection().toPlainText());
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
