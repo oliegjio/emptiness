@@ -75,16 +75,13 @@ void MainWindow::init()
             this,
             &MainWindow::sharedMemoryForPathChanged);
     connect(titleBar, &TitleBar::returnPressed, this, &MainWindow::returnPressed);
-    connect(searchBar, &SearchBar::keyPress, this, &MainWindow::searchForward);
-    connect(searchBar, &SearchBar::shiftEnterPressed, this, &MainWindow::searchBackward);
+    connect(searchBar, &SearchBar::returnPressed, this, &MainWindow::searchForward);
+    connect(searchBar, &SearchBar::shiftReturnPressed, this, &MainWindow::searchBackward);
     connect(searchBar, &SearchBar::focusOut, this, &MainWindow::toggleSearch);
 }
 
-void MainWindow::searchForward(QString string, bool ignore)
+void MainWindow::searchForward(QString string)
 {
-    if (!ignore && oldSearchQuery.contains(string)) return;
-    if (!ignore && string.contains(oldSearchQuery)) return;
-
     QTextDocument *document = editor->document();
     QTextCursor cursor = editor->textCursor();
 
@@ -95,10 +92,8 @@ void MainWindow::searchForward(QString string, bool ignore)
     oldSearchQuery = string;
 }
 
-void MainWindow::searchBackward(QString string, bool ignore)
+void MainWindow::searchBackward(QString string)
 {
-    if (!ignore && oldSearchQuery.contains(string)) return;
-
     QTextDocument *document = editor->document();
     QTextCursor cursor = editor->textCursor();
 

@@ -52,8 +52,8 @@ private slots:
     void sharedMemoryForPathChanged(const QString& path);
     void sharedMemoryForWorkingDirectoryChanged(const QString& path);
     void returnPressed();
-    void searchForward(QString string, bool ignore);
-    void searchBackward(QString string, bool ignore);
+    void searchForward(QString string);
+    void searchBackward(QString string);
     void toggleSearch();
 };
 

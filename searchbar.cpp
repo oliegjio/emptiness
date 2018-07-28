@@ -11,24 +11,16 @@ void SearchBar::keyPressEvent(QKeyEvent* event)
 
     if (modifier == Qt::ShiftModifier && key == Qt::Key_Return)
     {
-        emit shiftEnterPressed(text(), true);
+        emit shiftReturnPressed(text());
         return;
     }
     else if (modifier == Qt::NoModifier && key == Qt::Key_Return)
     {
-        emit keyPress(text(), true);
+        emit returnPressed(text());
         return;
     }
-    else if (modifier == Qt::ControlModifier || modifier == Qt::AltModifier)
-    {
-        QLineEdit::keyPressEvent(event);
-        return;
-    }
-    else
-    {
-        QLineEdit::keyPressEvent(event);
-        emit keyPress(text(), false);
-    }
+
+    QLineEdit::keyPressEvent(event);
 }
 
 void SearchBar::focusOutEvent(QFocusEvent *event)
