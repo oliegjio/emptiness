@@ -83,6 +83,7 @@ void MainWindow::init()
 void MainWindow::searchForward(QString string, bool ignore)
 {
     if (!ignore && oldSearchQuery.contains(string)) return;
+    if (!ignore && string.contains(oldSearchQuery)) return;
 
     QTextDocument *document = editor->document();
     QTextCursor cursor = editor->textCursor();
