@@ -6,9 +6,10 @@
 
 class TextEdit : public QPlainTextEdit
 {
+    Q_OBJECT
+
 public:
     TextEdit();
-    ~TextEdit();
 
 private:
     void handleTabKeyPress();

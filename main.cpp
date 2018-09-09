@@ -19,5 +19,13 @@ int main(int argc, char* argv[])
     MainWindow window(singleApplication);
     window.show();
 
+    QFontDatabase fontDatabase;
+    fontDatabase.addApplicationFont(":/fonts/ubuntu-mono-regular.ttf");
+
+    QFont font;
+    font.setFamily("Ubuntu Mono");
+    font.setPointSize(14);
+    application.setFont(font);
+
     return application.exec();
 }

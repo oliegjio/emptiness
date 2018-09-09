@@ -10,7 +10,6 @@ class TitleBar : public QLineEdit
 
 public:
     TitleBar();
-    ~TitleBar();
 
 private:
     void keyPressEvent(QKeyEvent* event) override;

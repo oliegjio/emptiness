@@ -47,6 +47,9 @@ private:
     QString getAbsolutePathFromArguments();
     void insertSourceHash();
 
+    void increaseFontSize();
+    void decreaseFontSize();
+
     void keyPressEvent(QKeyEvent* event) override;
 
 private slots:

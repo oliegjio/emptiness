@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include <QApplication>
+
 MainWindow::MainWindow(SingleApplication* singleApplication, QWidget *parent)
     : QMainWindow(parent)
     , singleApplication(singleApplication)
@@ -23,16 +25,6 @@ void MainWindow::init()
 
     layout->setSpacing(0);
     layout->setMargin(0);
-
-    QFontDatabase fontDatabase;
-    fontDatabase.addApplicationFont(":/fonts/ubuntu-mono-regular.ttf");
-
-    QFont font;
-    font.setFamily("Ubuntu Mono");
-    font.setPointSize(14);
-    searchBar->setFont(font);
-    editor->setFont(font);
-    titleBar->setFont(font);
 
     QPalette editorPalette = editor->palette();
     editorPalette.setColor(QPalette::Base, QColor(0, 0, 0));
@@ -78,6 +70,20 @@ void MainWindow::init()
     connect(searchBar, &SearchBar::returnPressed, this, &MainWindow::searchForward);
     connect(searchBar, &SearchBar::shiftReturnPressed, this, &MainWindow::searchBackward);
     connect(searchBar, &SearchBar::focusOut, this, &MainWindow::toggleSearch);
+}
+
+void MainWindow::increaseFontSize()
+{
+    QFont font = QApplication::font();
+    font.setPointSize(font.pointSize() + 1);
+    QApplication::setFont(font);
+}
+
+void MainWindow::decreaseFontSize()
+{
+    QFont font = QApplication::font();
+    font.setPointSize(font.pointSize() - 1);
+    QApplication::setFont(font);
 }
 
 void MainWindow::searchForward(QString string)
@@ -246,6 +252,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 
     if (modifier == Qt::ControlModifier && key == Qt::Key_F)
         toggleSearch();
+
+    if (modifier == Qt::ControlModifier && key == Qt::Key_Minus)
+        decreaseFontSize();
+
+    if (modifier == Qt::ControlModifier && key == Qt::Key_Equal)
+        increaseFontSize();
 
     QMainWindow::keyPressEvent(event);
 }

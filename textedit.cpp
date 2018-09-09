@@ -1,7 +1,6 @@
 #include "textedit.h"
 
-TextEdit::TextEdit() : QPlainTextEdit() {}
-TextEdit::~TextEdit() {}
+TextEdit::TextEdit() {}
 
 void TextEdit::handleTabKeyPress()
 {
@@ -17,10 +16,10 @@ void TextEdit::handleControlAltTabKeyPress()
     setTextCursor(cursor);
 }
 
-void TextEdit::keyPressEvent(QKeyEvent* event)
+void TextEdit::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
-    int modifier = event->modifiers();
+    unsigned int modifier = event->modifiers();
 
     if (modifier == Qt::NoModifier && key == Qt::Key_Tab)
     {

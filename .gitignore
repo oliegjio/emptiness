@@ -1,2 +1,7 @@
 *.o
-./emptiness
+emptiness
+*.stash
+*.user
+Makefile
+moc_*
+build
