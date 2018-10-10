@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     SingleApplication* singleApplication = new SingleApplication("Emptiness");
     if (!singleApplication->tryToRun()) return EXIT_SUCCESS;
 
-    srand(time(NULL));
+    srand(static_cast<unsigned>(time(nullptr)));
 
     application.setWindowIcon(QIcon("icon.png"));
     QCoreApplication::setApplicationName("Emptiness");

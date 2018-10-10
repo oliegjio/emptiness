@@ -12,8 +12,12 @@ public:
     TextEdit();
 
 private:
+    QString spaceTab = "    ";
+    QString tabTab = QString(9);
+
     void handleTabKeyPress();
     void handleControlAltTabKeyPress();
+    void handleControlTabKeyPress();
 
     void keyPressEvent(QKeyEvent* event) override;
 };

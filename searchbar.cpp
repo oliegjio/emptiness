@@ -1,8 +1,6 @@
 #include "searchbar.h"
 
-SearchBar::SearchBar(QWidget *parent) : QLineEdit(parent) {}
-
-SearchBar::~SearchBar() {}
+SearchBar::SearchBar() {}
 
 void SearchBar::keyPressEvent(QKeyEvent* event)
 {

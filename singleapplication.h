@@ -15,7 +15,7 @@ class SingleApplication : public QThread
 
 public:
     explicit SingleApplication(const QString& key, QObject* parent = nullptr);
-    ~SingleApplication();
+    ~SingleApplication() override;
 
     bool isAnotherRunning();
     bool tryToRun();

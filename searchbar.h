@@ -9,8 +9,7 @@ class SearchBar : public QLineEdit
     Q_OBJECT
 
 public:
-    SearchBar(QWidget *parent = nullptr);
-    ~SearchBar();
+    SearchBar();
 
     void keyPressEvent(QKeyEvent* event) override;
     void focusOutEvent(QFocusEvent* event) override;
